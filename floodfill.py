@@ -3,6 +3,7 @@ import time
 
 from helpers import initialData
 from helpers import printMatrix as printMatrixImpl
+from collections import deque
 
 customCopy = lambda matrix: [row.copy() for row in matrix]        
 constMatrix = lambda m, n, val: [[val for i in range(m)] for i in range(n)]
@@ -43,13 +44,17 @@ def spiralWalkMatrix(m, n, skip = 0):
 
 def fill(matrix, new, x, y, calculated, exact = False):
 
-    Q = []
+    n, m = len(matrix), len(matrix[0])
+
+    #Q = []
+    Q = deque()
     Q.append((x, y))   
     overfill = False
 
-    while len(Q)>0:
+    while Q:
         
-        x, y = Q.pop(0)
+        #x, y = Q.pop(0)
+        x, y = Q.popleft()
 
         if (exact and matrix[y][x] == new - 1) or (matrix[y][x] < new):
 
@@ -58,7 +63,7 @@ def fill(matrix, new, x, y, calculated, exact = False):
                 overfill = True
             neighbours = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
             for xi, yi in neighbours:
-                if (0 <= xi <= len(matrix[0])-1) and (0 <= yi <= len(matrix)-1):
+                if (0 <= xi <= (m - 1)) and (0 <= yi <= (n - 1)):
                     Q.append((xi, yi))
                 else:
                     overfill = True 
@@ -72,6 +77,8 @@ def fillXY(matrix, calculated, x, y):
     noOverfill = True
     
     matrix_prev = customCopy(matrix)
+
+    n, m = len(matrix), len(matrix[0])
 
     while noOverfill:        
 
@@ -87,16 +94,14 @@ def fillXY(matrix, calculated, x, y):
     matrix_tmp = customCopy(matrix_prev)
     fill(matrix_tmp, newVal, x, y, calculated, True)
 
-    n = len (matrix_tmp)
-    m = len (matrix_tmp[0])
+    for x in range(m):
+        for y in range(n):        
+            if not(matrix[y][x] == matrix_tmp[y][x]):
+                if (0 < x < m - 1) and ( 0 < y < n - 1):
+                    matrix[y][x] = matrix_prev[y][x]
+                if (matrix_tmp[y][x] == matrix_prev[y][x]+1):
+                    calculated[y][x] = True
 
-    for x, y, k in spiralWalkMatrix(m, n):
-        if not(matrix[y][x] == matrix_tmp[y][x]):
-            if (0 < x < m - 1) and ( 0 < y < n - 1):
-                matrix[y][x] = matrix_prev[y][x]
-            if (matrix_tmp[y][x] == matrix_prev[y][x]+1):
-                calculated[y][x] = True
-            
     
 def volume(heightmap):
 
