@@ -42,19 +42,43 @@ def spiralWalkMatrix(m, n, skip = 0):
                 x = yi
                 yield x, yk, "^"
 
-def fill(matrix, new, x, y, calculated, exact = False):
+def spiralWalkMatrixCenter(m, n, skip = 0):
+    cycles = min((m + 1) // 2, (n + 1) // 2)
+    for yi in range(cycles, skip-1, -1):
+        # left to rigth
+        for xj in range(yi, m - yi):
+            yield xj, yi, ">"
+        # top to bottom
+        if yi + 1 <= n - yi - 2:
+            for yk in range (yi+1, n - yi - 1):
+                x = m - yi - 1
+                yield x, yk, "v"
+        # rigth to left
+        if yi < n - yi-1:
+            for xj in range(m - yi - 1, 0+yi-1, -1):
+                yield xj, n - yi -1, "<"
+        # bottom to top
+        if (yi + 1 <= n - yi - 2) and (yi < m - yi - 1):
+            for yk in range (n - 2 - yi, yi, -1):
+                x = yi
+                yield x, yk, "^"
+
+
+def fill(matrix, new, xs, ys, calculated, exact = False):
 
     n, m = len(matrix), len(matrix[0])
+    unvisited = constMatrix(m, n, True)   
 
-    #Q = []
     Q = deque()
-    Q.append((x, y))   
+    Q.append((xs, ys))  
+    unvisited[ys][xs] = False 
     overfill = False
+    iterations = 0
 
     while Q:
-        
+        iterations += 1
         #x, y = Q.pop(0)
-        x, y = Q.popleft()
+        x, y = Q.popleft()                
 
         if (exact and matrix[y][x] == new - 1) or (matrix[y][x] < new):
 
@@ -64,10 +88,13 @@ def fill(matrix, new, x, y, calculated, exact = False):
             neighbours = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
             for xi, yi in neighbours:
                 if (0 <= xi <= (m - 1)) and (0 <= yi <= (n - 1)):
-                    Q.append((xi, yi))
+                    if unvisited[yi][xi]:
+                        unvisited[yi][xi] = False
+                        Q.append((xi, yi))
                 else:
                     overfill = True 
     
+    # print (xs, ys, ":  ",iterations)
     return overfill
 
 def fillXY(matrix, calculated, x, y):
@@ -112,9 +139,8 @@ def volume(heightmap):
     
     calculated  = constMatrix(m, n, False)   
     
-    #x, y, val = findMinCoordsSpiral(heightmap, calculated) 
-
-    for x,y,k in spiralWalkMatrix(m,n,1):
+    for x,y,k in spiralWalkMatrixCenter(m,n,1):
+        print(x,y)
         if not calculated[y][x]:
             fillXY(heightmap, calculated, x, y)
 
