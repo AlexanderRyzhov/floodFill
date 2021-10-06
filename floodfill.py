@@ -20,23 +20,6 @@ def calcVolume(m1, m2):
             volume += (v2 - v1)
     return volume
 
-def findMinCoordsSpiral(matrix, calculated):
-
-    n, m = len(matrix), len(matrix[0])
-    
-    minValue = xmin = ymin = None
-     
-    for x,y,k in spiralWalkMatrix(m,n,1):
-
-        if minValue == None:
-            minValue = matrix[y][x]
-        if matrix[y][x] <= minValue:
-            if not (calculated[y][x]):
-                minValue = matrix[y][x]
-                xmin, ymin = x, y
-    
-    return xmin, ymin, minValue
-
 def spiralWalkMatrix(m, n, skip = 0):
     cycles = min((m + 1) // 2, (n + 1) // 2)
     for yi in range(skip, cycles):
